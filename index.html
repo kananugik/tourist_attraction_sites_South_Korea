@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tourist Attractions in South Korea</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #description {
+      text-align: center;
+      margin-top: 20px;
+      background: linear-gradient(135deg, pink, lightblue);
+      padding: 20px;
+      border-radius: 10px;
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; 
+    }
+   
+    #map-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid lightblue;
+    box-sizing: border-box;
+    padding: 20px;
+    overflow: hidden;
+}
+    #map {
+      height: 100vh;
+      width: 100vw; 
+    }
+       
+    html, body{
+            margin: 0;
+            padding: 0%;
+        }
+  </style>
+</head>
+<body>
+
+  <div id="description">
+    <h1>Discover South Korea</h1>
+    <p>South Korea, officially known as the Republic of Korea, is a beautiful country in East Asia. With its rich history, breathtaking landscapes and vibrant culture, South Korea offers a wealth of experiences for travellers.</p>
+
+      <p>One of the highlights of South Korea is its bustling capital, Seoul. This modern city seamlessly blends ancient traditions with modern wonders. Explore the historic palaces of Gyeongbokgung and Changdeokgung that reflect the grandeur of the Joseon Dynasty. Walk the busy streets of Myeongdong and Dongdaemun, where you can find shopping, delicious street food and vibrant nightlife.</p>
+      
+      <p>Outside of Seoul, South Korea boasts breathtaking natural beauty. The state is adorned with picturesque mountains, serene valleys and pristine beaches. Visit Seoraksan National Park, where you can hike amid stunning mountains, waterfalls and vibrant autumn foliage. Explore the volcanic wonder of Jeju Island, with stunning beaches, cliffs and unique cliffs.</p>
+      
+      <p>South Korea’s cultural heritage is truly fascinating. Immerse yourself in the art of traditional Korean tea ceremony, witness the grace of traditional dancing and musical performances, admire the stunning beauty of traditional clothing hanbok.</p>
+      <p>Foodies will love South Korean culinary offerings. Indulge in mouthwatering dishes like bibimbap, kimchi and bulgogi, as well as delicious street food like tteokbokki and hotteok. Explore traditional markets like Gwangjang Market and Namdaemun Market, where you can sample a wide variety of flavors and ingredients.</p>
+  </div>
+   <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize the map
+    var map = L.map('map').setView([37.5665, 126.9780],7);
+
+    // Add the tile layer (map tiles)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Define the tourist attractions as an array of objects
+    var attractions = [
+      {
+        name: 'Gyeongbokgung Palace',
+        latlng: [37.5796, 126.9770],
+        image:'https://tse2.mm.bing.net/th?id=OIP.HxqcGbiTohxcnQLJxZHBTQHaEo&pid=Api&P=0&h=180',
+        description: 'A historic and stunning royal palace in Seoul.'
+      },
+      {
+        name: 'Bulguksa Temple',
+        latlng: [35.7902, 129.3309],
+        image:'https://tse1.mm.bing.net/th?id=OIP.a5iTZOXskR2mzgrAxWjavQHaE8&pid=Api&P=0&h=180',
+        description: 'Bulguksa Temple is a UNESCO World Heritage site in Gyeongju.'
+      },
+      {
+        name: 'Jeju Island',
+        latlng: [33.4996, 126.5312],
+        image: 'https://tse2.mm.bing.net/th?id=OIP.RItVaAPgrqIr5gdaWqf5qQHaFR&pid=Api&P=0&h=180',
+        description: 'Jeju Island is a beautiful volcanic island known for its natural wonders.'
+      },
+      {
+        name: 'Namiseom Island',
+        latlng: [37.7910, 127.5250],
+        image:'https://tse2.mm.bing.net/th?id=OIP.gZ4gYVhiH-1L5Ipnyg2bgQHaEy&pid=Api&P=0&h=180',
+        description: 'Namiseom Island, also known as Nami Island, is a picturesque island famous for its beautiful tree-lined paths and scenic landscapes.'
+      },
+      {
+        name: 'Haeundae Beach',
+        latlng: [35.1586, 129.1608],
+        image:'https://tse2.mm.bing.net/th?id=OIP.37VOsyVFkzBSzjb-g5TsKgHaE8&pid=Api&P=0&h=180',
+        description: 'Haeundae Beach is a popular sandy beach located in Busan, offering stunning ocean views and a vibrant atmosphere.'
+      },
+      {
+        name: 'Seoraksan National Park',
+        latlng: [38.1195,128.4654],
+        image:'https://tse3.mm.bing.net/th?id=OIP.-htNmezhFyBgcKgU3J1fnQHaFi&pid=Api&P=0&h=180',
+        description: 'Seoraksan National Park is a breathtaking mountainous park known for its stunning autumn foliage, hiking trails, and picturesque scenery.'
+      },
+      {
+        name: 'Gwangalli Beach',
+        latlng: [35.1547,129.1170],
+        image:'https://tse1.mm.bing.net/th?id=OIP.p5JiAYGeEqP23_ddILTlgQHaEK&pid=Api&P=0&h=180',
+        description: 'Gwangalli Beach is another famous beach in Busan, known for its fine sand, city skyline views, and the iconic Gwangan Bridge.'
+      },
+      {
+        name: 'Bukchon Hanok Village',
+        latlng: [37.5823,126.9835],
+        image:'https://tse2.mm.bing.net/th?id=OIP.G2onVhfSN1T8xzXsH3NWZQHaEK&pid=Api&P=0&h=180',
+        description: 'Bukchon Hanok Village is a traditional Korean village in Seoul, featuring well-preserved hanok houses that showcase traditional Korean architecture.'
+      },
+      {
+        name: 'Jeonju Hanok Village',
+        latlng: [35.8151, 127.1530],
+        image: 'https://tse3.mm.bing.net/th?id=OIP.7hlJbL2upo01PFfEhMTcNQHaEx&pid=Api&P=0&h=180',
+        description: 'Jeonju Hanok Village is a charming historic village in Jeonju, where you can experience traditional culture, taste delicious local food, and explore hanok-lined streets.'
+      },
+      {
+        name: 'Boseong Green Tea Fields',
+        latlng: [34.8373,127.6635],
+        image:'https://tse2.mm.bing.net/th?id=OIP.RVqcq7OyBlaexB_KEhFaowHaE7&pid=Api&P=0&h=180',
+        description: 'Boseong Green Tea Fields are vast tea plantations in Boseong, offering stunning green landscapes and the opportunity to learn about tea production.'
+      },
+      {
+        name: 'Gamcheon Culture Village',
+        latlng: [35.0987,129.0326],
+        image:'https://tse4.mm.bing.net/th?id=OIP.rmbJZLY6Mfgs076cLqTpqAHaEK&pid=Api&P=0&h=180',
+        description: ' Gamcheon Culture Village is a colorful hillside village in Busan, known for its vibrant art murals, quirky sculptures, and charming alleyways.'
+      },
+      {
+        name: 'Namsan Seoul Tower',
+        latlng: [37.5515,126.9880],
+        image: 'https://tse4.mm.bing.net/th?id=OIP.Ed4z9hAF-beiBs3BBq_LNQHaHa&pid=Api&P=0&h=180',
+        description: 'Namsan Seoul Tower is an iconic landmark in Seoul, providing panoramic views of the city and serving as a popular spot for couples and tourists.'
+      },
+      {
+        name: 'Gyeongju Historic Areas',
+        latlng: [35.8562,129.2242],
+        image:'https://tse4.mm.bing.net/th?id=OIP.9Xk_gX07NBRJ8cLYQOgRBAHaFU&pid=Api&P=0&h=180',
+        description: 'The Gyeongju Historic Areas in Gyeongju city are home to numerous historical sites and artifacts, including UNESCO World Heritage Sites like Bulguksa Temple and the Gyeongju Historic Area.'
+      },
+      // Add more attractions here
+    ];
+    
+attractions.forEach(function(attraction) {
+  var marker = L.marker(attraction.latlng, {
+    icon: L.icon({
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png', // URL to the default marker icon
+      iconSize: [24, 36], 
+      iconAnchor: [12, 36], 
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png', // URL to the marker shadow image
+      shadowSize: [41, 41], 
+      shadowAnchor: [12, 41] 
+    }),
+    // Customize the marker options
+    riseOnHover: true, 
+  }).addTo(map);
+
+  var popupContent = "<b>" + attraction.name + "</b><br>" + attraction.description + "<br><img class='popup-image' src='" + attraction.image + "'>";
+  marker.bindPopup(popupContent);
+});
+
+ 
+  </script>
+</body>
+</html>
