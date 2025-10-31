@@ -36,7 +36,7 @@
 
     #description p {
       font-family: 'Cormorant', serif;
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       max-width: 800px;
       margin: 10px auto;
       line-height: 1.7;
@@ -72,7 +72,7 @@
       padding: 12px 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       z-index: 1000;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Cormorant', sans-serif;
       font-size: 15px;
       color: #333;
       border: 1px solid rgba(255,255,255,0.6);
@@ -108,6 +108,7 @@
     .dot.temple { background-color: orange; }
     .dot.nature { background-color: green; }
     .dot.beach { background-color: blue; }
+    .dot.modern { background-color: yellow; }
   </style>
 </head>
 <body>
@@ -127,6 +128,7 @@
       <option value="temple">🟠 Temples</option>
       <option value="nature">🟢 Nature</option>
       <option value="beach">🔵 Beaches</option>
+      <option value="modern">🟡 Modern</option>
     </select>
   </div>
 
@@ -162,13 +164,15 @@
       temple: 'orange',
       nature: 'green',
       beach: 'blue'
+      modern: 'yellow'
     };
 
     var markersByCategory = {
       historic: [],
       temple: [],
       nature: [],
-      beach: []
+      beach: [],
+      modern: []
     };
 
     // Add markers
@@ -200,4 +204,5 @@
   </script>
 </body>
 </html>
+
 
