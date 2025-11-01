@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tourist Attractions in South Korea</title>
+  <title>Discover South Korea</title>
 
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Cormorant:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
@@ -15,9 +16,8 @@
       margin: 0;
       padding: 0;
       font-family: 'Inter', sans-serif;
-      background: #f7f7f7;
+      overflow-x: hidden;
     }
-    
 
     #description {
       text-align: center;
@@ -28,106 +28,66 @@
 
     #description h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 36px;
-      font-weight: 600;
+      font-size: 2.5rem;
       margin-bottom: 10px;
       letter-spacing: 0.5px;
     }
 
     #description p {
       font-family: 'Cormorant', serif;
-      font-size: 1.15rem;
-      max-width: 800px;
+      font-size: 1.2rem;
+      max-width: 850px;
       margin: 10px auto;
-      line-height: 1.7;
-      color: #222;
-        
+      line-height: 1.8;
+    }
+
+    #filter-container {
+      text-align: center;
+      margin: 15px;
+    }
+
+    select {
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: 'Inter', sans-serif;
+      background-color: #fff;
     }
 
     #map {
-      height: 90vh;
+      height: 85vh;
       width: 100vw;
     }
 
     .popup-card {
-      width: 200px;
-      border-radius: 10px;
+      width: 220px;
       text-align: center;
+      font-family: 'Inter', sans-serif;
     }
 
     .popup-card img {
       width: 100%;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-top: 5px;
     }
-
-    /* dropdown styling */
-    #category-filter {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 12px;
-      padding: 12px 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 1000;
-      font-family: 'Cormorant', sans-serif;
-      font-size: 15px;
-      color: #333;
-      border: 1px solid rgba(255,255,255,0.6);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #categorySelect {
-      border: none;
-      background: transparent;
-      font-size: 15px;
-      color: #333;
-      outline: none;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    #categorySelect option {
-      color: #333;
-    }
-
-    /*  Colored dots for each category */
-    .dot {
-      height: 12px;
-      width: 12px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
-    }
-
-    .dot.historic { background-color: red; }
-    .dot.temple { background-color: orange; }
-    .dot.nature { background-color: green; }
-    .dot.beach { background-color: blue; }
-    .dot.modern { background-color: purple; }
   </style>
 </head>
 <body>
 
   <div id="description">
     <h1>Discover South Korea</h1>
-    <p>Explore the vibrant culture, scenic landscapes, and historic landmarks of South Korea.
-      
-       Click the markers on the map to learn more about each attraction.</p>
+    <p>From serene temples to breathtaking mountains and vibrant cities, South Korea offers a stunning blend of nature, history, and culture. Explore the map below to discover hidden gems and world-famous landmarks across the country.</p>
   </div>
 
-  <div id="category-filter">
-    <label for="categorySelect"><b>Filter by:</b></label>
-    <select id="categorySelect">
-      <option value="all">🌍 All Categories</option>
+  <div id="filter-container">
+    <label for="categoryFilter"><b>Filter by Category:</b> </label>
+    <select id="categoryFilter" onchange="filterAttractions()">
+      <option value="all">🌍 All Attractions</option>
       <option value="historic">🔴 Historic</option>
-      <option value="temple">🟠 Temples</option>
+      <option value="temple">🟠 Temple</option>
       <option value="nature">🟢 Nature</option>
-      <option value="beach">🔵 Beaches</option>
+      <option value="beach">🔵 Beach</option>
       <option value="modern">🟣 Modern</option>
     </select>
   </div>
@@ -138,27 +98,13 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <script>
-    // Initializing the map
-    var map = L.map('map').setView([37.5665, 126.9780], 7);
+    var map = L.map('map').setView([36.5, 127.8], 7);
 
-    // Adding map tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data © OpenStreetMap contributors'
+      attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Tourist Attraction data
-    var attractions = [
-      {name:'Gyeongbokgung Palace', latlng:[37.5796,126.9770], image:'https://tse2.mm.bing.net/th?id=OIP.HxqcGbiTohxcnQLJxZHBTQHaEo&pid=Api&P=0&h=180', description:'A historic and stunning royal palace in Seoul.', category:'historic'},
-      {name:'Bulguksa Temple', latlng:[35.7902,129.3309], image:'https://tse1.mm.bing.net/th?id=OIP.a5iTZOXskR2mzgrAxWjavQHaE8&pid=Api&P=0&h=180', description:'UNESCO World Heritage temple in Gyeongju.', category:'temple'},
-      {name:'Jeju Island', latlng:[33.4996,126.5312], image:'https://tse2.mm.bing.net/th?id=OIP.RItVaAPgrqIr5gdaWqf5qQHaFR&pid=Api&P=0&h=180', description:'A volcanic island known for its natural beauty.', category:'nature'},
-      {name:'Haeundae Beach', latlng:[35.1586,129.1608], image:'https://tse2.mm.bing.net/th?id=OIP.37VOsyVFkzBSzjb-g5TsKgHaE8&pid=Api&P=0&h=180', description:'Popular sandy beach in Busan.', category:'beach'},
-      {name:'Seoraksan National Park', latlng:[38.1195,128.4654], image:'https://tse3.mm.bing.net/th?id=OIP.-htNmezhFyBgcKgU3J1fnQHaFi&pid=Api&P=0&h=180', description:'Breathtaking mountainous park.', category:'nature'},
-      {name:'Bukchon Hanok Village', latlng:[37.5823,126.9835], image:'https://tse2.mm.bing.net/th?id=OIP.G2onVhfSN1T8xzXsH3NWZQHaEK&pid=Api&P=0&h=180', description:'Traditional Korean village in Seoul.', category:'historic'},
-      {name:'Gwangalli Beach', latlng:[35.1547,129.1170], image:'https://tse1.mm.bing.net/th?id=OIP.p5JiAYGeEqP23_ddILTlgQHaEK&pid=Api&P=0&h=180', description:'Beach with skyline views and Gwangan Bridge.', category:'beach'},
-      {name:'Namsan Seoul Tower', latlng:[37.5515,126.9880], image:'https://tse4.mm.bing.net/th?id=OIP.Ed4z9hAF-beiBs3BBq_LNQHaHa&pid=Api&P=0&h=180', description:'Iconic landmark with city views.', category:'historic'}
-    ];
-
-    // Category colors
+    // Define category colors
     var categoryColors = {
       historic: 'red',
       temple: 'orange',
@@ -167,44 +113,62 @@
       modern: 'purple'
     };
 
-    var markersByCategory = {
-      historic: [],
-      temple: [],
-      nature: [],
-      beach: [],
-      modern: []
-    };
+    // List of attractions
+    var attractions = [
+      {name:'Gyeongbokgung Palace', latlng:[37.5796,126.9770], image:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg/1200px-%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg', description:'A historic and stunning royal palace in Seoul.', category:'historic'},
+      {name:'Bulguksa Temple', latlng:[35.7902,129.3309], image:'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/53/f3/42/caption.jpg?w=2000&h=-1&s=1', description:'UNESCO World Heritage site in Gyeongju.', category:'temple'},
+      {name:'Jeju Island', latlng:[33.4996,126.5312], image:'https://media-gadventures.global.ssl.fastly.net/media-server/dynamic/blogs/posts/G-Adventures/2025/09/blog-jeju-island-korea-travel-guide-springtime-hiking.webp', description:'Volcanic island known for its natural wonders.', category:'nature'},
+      {name:'Haeundae Beach', latlng:[35.1586,129.1608], image:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Haeundae_Beach_May_2024.jpg/1200px-Haeundae_Beach_May_2024.jpg', description:'Popular sandy beach in Busan.', category:'beach'},
+      {name:'Seoraksan National Park', latlng:[38.1195,128.4654], image:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Seoraksan_National_Park_panorama_7.jpg/1920px-Seoraksan_National_Park_panorama_7.jpg', description:'Mountain park famous for hiking and autumn colors.', category:'nature'},
+      {name:'Namiseom Island', latlng:[37.7910,127.5250], image:'https://www.agoda.com/wp-content/uploads/2024/09/Nami-Island-1244x700.jpg', description:'Picturesque island famous for its tree-lined paths.', category:'nature'},
+      {name:'Bukchon Hanok Village', latlng:[37.5823,126.9835], image:'https://southkoreahallyu.com/wp-content/uploads/2025/08/bukchon-3.jpg', description:'Traditional village in Seoul showcasing old Korean homes.', category:'historic'},
+      {name:'Namsan Seoul Tower', latlng:[37.5515,126.9880], image:'https://www.agoda.com/wp-content/uploads/2024/08/Namsan-Tower-during-autumn-in-Seoul-South-Korea-1244x700.jpg', description:'Iconic landmark offering panoramic city views.', category:'modern'},
+      {name:'Gamcheon Culture Village', latlng:[35.0987,129.0326], image:'https://www.visitbusan.net/uploadImgs/files/cntnts/20191229142305006', description:'Colorful hillside village in Busan known for art and murals.', category:'historic'},
+      {name:'Andong Hahoe Folk Village', latlng:[36.53895,128.51814], image:'https://byemyself.com/wp-content/uploads/2023/09/bye-myself_south_korea_andong_01232.jpg', description:'Traditional Joseon-era village (UNESCO).', category:'historic'},
+      {name:'Dodamsambong (Danyang)', latlng:[37.00006,128.34389], image:'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/07/7f/27/photo0jpg.jpg?w=1400&h=800&s=1', description:'Three striking rock pillars in the Namhan River.', category:'nature'},
+      {name:'Songnisan National Park (Beopjusa)', latlng:[36.53300,127.90000], image:'https://dynamic-media.tacdn.com/media/photo-o/2f/04/4f/45/caption.jpg?w=1100&h=800&s=1', description:'National park with temples and forest trails.', category:'temple'},
+      {name:'Deogyusan National Park', latlng:[35.86056,127.74400], image:'https://peakvisor.com/photo/Deogyusan-National-Park.jpg', description:'Mountain park famous for hiking and skiing.', category:'nature'},
+      {name:'Chungju Tangeum Lake', latlng:[37.02194,127.86528], image:'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/16/ff/cc/e6/1540054-largejpg.jpg?w=1200&h=-1&s=1', description:'Scenic lake for boating and rowing.', category:'nature'},
+      {name:'Daejeon Expo Science Park', latlng:[36.37111,127.38778], image:'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/24/2e/ee/c0/caption.jpg?w=1400&h=800&s=1', description:'Futuristic science park with Hanbit Tower.', category:'modern'},
+      {name:'Odaesan National Park', latlng:[37.79806,128.54306], image:'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/09/69/5a/01/caption.jpg?w=1400&h=800&s=1', description:'Forested park with serene temples and trails.', category:'nature'},
+      {name:'Jikji Temple (Cheongju)', latlng:[36.6431,127.4897], image:'https://lindagoeseast.com/2015/09/14/a-visit-to-the-cheongju-early-printing-museum/dsc_0506/', description:'Linked to the world’s oldest printed book, Jikji.', category:'temple'},
+      {name:'Gongju Gongsanseong Fortress', latlng:[36.4565,127.1254], image:'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/8e/61/98/photo0jpg.jpg?w=1200&h=-1&s=1', description:'Ancient Baekje fortress overlooking the Geum River.', category:'historic'},
+      {name:'Songjeong Beach', latlng: [35.1766, 129.1857], image: 'https://www.visitbusan.net/uploadImgs/files/cntnts/20191225170323249_wufrotr', description: 'Popular with surfers and families, known for its soft sand and clear water.', category: 'beach' }, 
+      {name:'Daecheon Beach', latlng: [36.3641, 126.4986], image: 'https://media-cdn.tripadvisor.com/media/photo-s/06/e6/ee/f0/daecheon-beach.jpg', description: 'Famous for the Boryeong Mud Festival, stretches over 3.5 km of sandy coastline.', category: 'beach'},
+      {name:'Jinha Beach', latlng: [34.8511, 128.4336], image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/13/e9/72/b2/jinha-beach.jpg?w=600&h=400&s=1', description: 'Picturesque beach with calm waters and nearby walking trails.', category:'beach' },
+      {name:'Gyeongpo Beach', latlng: [37.7519, 128.8935], image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/60/e1/09/gyeongpo-beach-in-february.jpg?w=1400&h=800&s=1', description: 'Long sandy beach with views of Gyeongpo Lake and popular sunrise spots.', category:'beach' },
+      {name:'Hyeopjae Beach', latlng: [33.3926, 126.2425], image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/16/94/be/01/hyupjae-gumneung-beach.jpg?w=1400&h=-1&s=1', description: 'Famous for turquoise water and white sand, near Hallim Park.', category:'beach' }
 
-    // Add markers
+    ];
+
+    // Add all markers to map
+    var markers = [];
+
     attractions.forEach(function(attraction) {
       var marker = L.circleMarker(attraction.latlng, {
         color: categoryColors[attraction.category],
-        radius: 8,
-        fillOpacity: 0.8
+        radius: 5,
+        fillOpacity: 0.9
       }).bindPopup(
         "<div class='popup-card'><b>" + attraction.name + "</b><br>" +
-        attraction.description + "<br><img src='" + attraction.image + "'></div>"
-      ).addTo(map);
-
-      markersByCategory[attraction.category].push(marker);
+        attraction.description + "<br><img src='" + attraction.image + "' alt='" + attraction.name + "'></div>"
+      );
+      marker.category = attraction.category;
+      marker.addTo(map);
+      markers.push(marker);
     });
 
-    // Filtering logic
-    document.getElementById('categorySelect').addEventListener('change', function() {
-      var selected = this.value;
-      map.eachLayer(function(layer) {
-        if (layer instanceof L.CircleMarker) map.removeLayer(layer);
+    // Filter function
+    function filterAttractions() {
+      var selectedCategory = document.getElementById('categoryFilter').value;
+      markers.forEach(function(marker) {
+        if (selectedCategory === 'all' || marker.category === selectedCategory) {
+          map.addLayer(marker);
+        } else {
+          map.removeLayer(marker);
+        }
       });
-      if (selected === 'all') {
-        Object.values(markersByCategory).flat().forEach(m => map.addLayer(m));
-      } else {
-        markersByCategory[selected].forEach(m => map.addLayer(m));
-      }
-    });
+    }
   </script>
 </body>
 </html>
-
-
-
-
